@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Marmitas</title>
+  <style>
+    .logo {
+      display: block;
+      margin: 0 auto 20px auto;
+      max-width: 200px;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #1b1414;
+      margin: 0;
+      padding: 20px;
+      color: white
+    }
+    h1 {
+      text-align: center;
+      color: #fcfcfc;
+    }
+    .card {
+      background: #1b1414;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      width: 100%;
+    }
+    button {
+      cursor: pointer;
+      background: red;
+      color: white;
+      font-weight: bold;
+      border: none;
+    }
+    button:hover {
+      background: darkred;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    .report {
+      background: #fffbe6;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #5e0d0d;
+      color: #000;
+    }
+    .endereco-detalhe {
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f9f9f9;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+<img src="logo.png" alt="logo" class="logo">
+  <h1>Sistema de Marmitas</h1>
+
+  <div class="card">
+    <h2>Adicionar Pedido</h2>
+    <label>Endereço:</label>
+    <input type="text" id="endereco" placeholder="Digite o endereço">
+
+    <label>Selecione o item:</label>
+    <select id="item">
+      <option value="marmita_p">Marmita P - R$14</option>
+      <option value="marmita_m">Marmita M - R$18</option>
+      <option value="marmita_g">Marmita G - R$22</option>
+      <option value="salada_p">Salada P - R$7</option>
+      <option value="salada_m">Salada M - R$10</option>
+      <option value="marmita_m_esp">Marmita M Especial - R$20</option>
+      <option value="marmita_g_esp">Marmita G Especial - R$25</option>
+      <option value="porcao_p">Porção P - R$10</option>
+      <option value="porcao_m">Porção M - R$20</option>
+    </select>
+
+    <button onclick="adicionarItem()">Adicionar Item</button>
+
+    <h3>Itens do Pedido Atual:</h3>
+    <ul id="listaItens"></ul>
+
+    <label>Forma de pagamento:</label>
+    <select id="pagamento">
+      <option value="Pix">Pix</option>
+      <option value="Dinheiro">Dinheiro</option>
+      <option value="Cartão">Cartão</option>
+      <option value="Fiado">Fiado</option>
+      <option value="Nenhum">Nenhum</option>
+    </select>
+
+    <button onclick="finalizarPedido()">Finalizar Pedido</button>
+  </div>
+
+  <div class="card">
+    <h2>Relatório</h2>
+    <button onclick="gerarRelatorio()">Gerar Relatório</button>
+    <div class="report" id="relatorio"></div>
+  </div>
+
+  <script>
+    const precos = {
+      marmita_p: 14,
+      marmita_m: 18,
+      marmita_g: 22,
+      salada_p: 7,
+      salada_m: 10,
+      marmita_m_esp: 20,
+      marmita_g_esp: 25,
+      porcao_p: 10,
+      porcao_m: 20
+    };
+
+    const nomes = {
+      marmita_p: "Marmita P - R$14",
+      marmita_m: "Marmita M - R$18",
+      marmita_g: "Marmita G - R$22",
+      salada_p: "Salada P - R$7",
+      salada_m: "Salada M - R$10",
+      marmita_m_esp: "Marmita M Especial - R$20",
+      marmita_g_esp: "Marmita G Especial - R$25",
+      porcao_p: "Porção P - R$10",
+      porcao_m: "Porção M - R$20"
+    };
+
+    const pedidos = [];
+    let pedidoAtual = [];
+
+    function adicionarItem() {
+      const item = document.getElementById("item").value;
+      pedidoAtual.push(item);
+
+      const lista = document.getElementById("listaItens");
+      const li = document.createElement("li");
+      li.textContent = nomes[item];
+      lista.appendChild(li);
+    }
+
+    function finalizarPedido() {
+      const endereco = document.getElementById("endereco").value;
+
+      if (!endereco) {
+        alert("Digite um endereço!");
+        return;
+      }
+
+      if (pedidoAtual.length === 0) {
+        alert("Adicione pelo menos um item!");
+        return;
+      }
+
+      pedidos.push({ endereco, itens: [...pedidoAtual] });
+      pedidoAtual = [];
+      document.getElementById("listaItens").innerHTML = "";
+      document.getElementById("endereco").value = "";
+    }
+
+    function gerarRelatorio() {
+      let total = 0;
+      let marmitasVendidas = 0;
+      const enderecos = new Set();
+
+      pedidos.forEach(pedido => {
+        enderecos.add(pedido.endereco);
+
+        pedido.itens.forEach(item => {
+          total += precos[item];
+          if (item.startsWith("marmita") || item === "porcao_m") {
+            marmitasVendidas++;
+          }
+        });
+      });
+
+      document.getElementById("relatorio").innerHTML = `
+        <p><strong>Total de marmitas vendidas:</strong> ${marmitasVendidas}</p>
+        <p><strong>Valor total:</strong> R$ ${total.toFixed(2)}</p>
+        <p><strong>Endereços atendidos:</strong><br> ${Array.from(enderecos).join("<br>")}</p>
+      `;
+    }
+  </script>
+
+</body>
+</html>
