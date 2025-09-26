@@ -19,18 +19,42 @@
       <label>Endereço:</label>
       <input type="text" id="endereco" placeholder="Digite o endereço">
 
-      <label>Selecione o item:</label>
-      <select id="item">
+      <!-- Marmitas e Porções -->
+      <label>Selecione Marmita/Porção:</label>
+      <select id="itemMarmita">
+        <option value="">Nenhuma</option>
         <option value="marmita_p">Marmita P - R$14</option>
         <option value="marmita_m">Marmita M - R$18</option>
         <option value="marmita_g">Marmita G - R$22</option>
-        <option value="salada_p">Salada P - R$7</option>
-        <option value="salada_m">Salada M - R$10</option>
         <option value="marmita_m_esp">Marmita M Especial - R$20</option>
         <option value="marmita_g_esp">Marmita G Especial - R$25</option>
         <option value="porcao_p">Porção P - R$10</option>
         <option value="porcao_m">Porção M - R$20</option>
       </select>
+      <button onclick="adicionarItemUnico('itemMarmita')">Adicionar Marmita</button>
+
+      <!-- Saladas -->
+      <label>Selecione Salada:</label>
+      <select id="itemSalada">
+        <option value="">Nenhuma</option>
+        <option value="salada_p">Salada P - R$7</option>
+        <option value="salada_m">Salada M - R$10</option>
+      </select>
+      <button onclick="adicionarItemUnico('itemSalada')">Adicionar Salada</button>
+
+      <!-- Refrigerantes -->
+      <label>Selecione Refrigerante:</label>
+      <select id="itemBebida">
+        <option value="">Nenhum</option>
+        <option value="refri_lata">Refrigerante Lata - R$6</option>
+        <option value="refri_600">Refrigerante 600ml - R$8</option>
+        <option value="refri_1l">Refrigerante 1L - R$10</option>
+        <option value="refri_taubaina_2l">Taubainas 2L - R$10</option>
+        <option value="refri_outros_2l">Outros Refrigerantes 2L - R$12</option>
+        <option value="refri_coca_2l">Coca-Cola 2L - R$15</option>
+        <option value="refri_coca_25l">Coca-Cola 2,5L - R$18</option>
+      </select>
+      <button onclick="adicionarItemUnico('itemBebida')">Adicionar Bebida</button>
 
       <label>Forma de pagamento:</label>
       <select id="pagamento">
@@ -40,15 +64,15 @@
         <option value="Fiado">Fiado</option>
         <option value="Nenhum">Nenhum</option>
       </select>
-
-      <button onclick="adicionarItem()">Adicionar Item</button>
-      <button onclick="finalizarPedido()">Finalizar Pedido</button>
     </div>
 
     <!-- Itens do Pedido Atual -->
     <div class="card">
       <h2>Itens do Pedido Atual</h2>
       <ul id="listaItens"></ul>
+      <div class="finalizar-container">
+        <button onclick="finalizarPedido()">Finalizar Pedido</button>
+      </div>
     </div>
   </div>
 
