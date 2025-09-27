@@ -1,94 +1,274 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sistema de Marmitas</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <style>
+    /* ==========================
+       Estilos principais
+       ========================== */
+    body {
+      font-family: Arial, sans-serif;
+      background: #1b1414;
+      margin: 0;
+      padding: 20px;
+      color: white;
+    }
+
+    .logo { display:block; margin:0 auto 16px auto; max-width:200px; }
+
+    h1,h2,h3 { margin: 0 0 12px 0; }
+
+    /* GRID PRINCIPAL: três blocos que se adaptam sem criar espaços enormes */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background:#2d2020;
+      border-radius:12px;
+      padding:16px;
+      border:2px solid #5a2a2a;
+      color: white;
+      display:flex;
+      flex-direction:column;
+      min-height:420px; /* mesma altura mínima; cresce conforme necessário */
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    }
+
+    /* linhas dos selects + botão alinhado */
+    .row {
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .row label { width:84px; flex-shrink:0; }
+    .row select { flex:1; min-width:0; }
+    .row input[type="text"], .row input[type="number"] { flex:1; min-width:0; }
+
+    input, select, button {
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #bbb;
+      background: white;
+      color: #000;
+      font-size:14px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #d32f2f;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.small { padding:6px 10px; font-size:13px; background:#444; }
+    button:hover { filter:brightness(.9); }
+
+    ul { list-style:none; padding:0; margin:0; }
+
+    /* bloco finalizar - botão fica visível ao final do card */
+    .finalizar-actions { margin-top:auto; display:flex; gap:8px; align-items:center; }
+    .finalizar-container { flex:1; }
+
+    /* pendentes */
+    .pendentes { background:#333; padding:10px; border-radius:8px; overflow:auto; max-height:260px; }
+
+    .pedido-detalhe {
+      background:#fff;
+      color:#000;
+      padding:10px;
+      border-radius:6px;
+      margin-bottom:8px;
+      border:1px solid #ccc;
+      font-size:14px;
+    }
+
+    /* rotas (card grande que ocupa largura total) */
+    .rotas-card {
+      margin-top:10px;
+      width: calc(100% - 40px);
+      margin-left:auto;
+      margin-right:auto;
+      padding-bottom:12px;
+    }
+
+    .rotas-grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .rota {
+      background:#3d2a2a;
+      padding:10px;
+      border-radius:8px;
+      color:white;
+      border:1px solid #5a2a2a;
+    }
+
+    /* relatório */
+    .relatorio-card { margin-top:14px; }
+    .report {
+      background:#fffbe6;
+      color:#000;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #5e0d0d;
+      margin-top:8px;
+      white-space:pre-wrap;
+    }
+    .report h3, .report strong { color: black; }
+
+    /* responsivo: reduzir gaps e fonte um pouco */
+    @media (max-width:640px) {
+      .row label { display:none; width:auto; }
+      input, select, button { font-size:13px; padding:6px; }
+      .card { min-height: auto; }
+    }
+  </style>
 </head>
 <body>
-  <img src="img/logo.png" alt="logo" class="logo">
+  <img class="logo" alt="logo" src="img/logo.png" />
   <h1>Sistema de Marmitas</h1>
 
   <!-- GRID PRINCIPAL -->
   <div class="grid">
-    <!-- Adicionar Pedido -->
-    <div class="card">
+    <!-- ADICIONAR PEDIDO -->
+    <div class="card" id="cardAdicionar">
       <h2>Adicionar Pedido</h2>
-      <label>Endereço:</label>
-      <input type="text" id="endereco" placeholder="Digite o endereço">
 
-      <!-- Marmitas e Porções -->
-      <label>Selecione Marmita/Porção:</label>
-      <select id="itemMarmita">
-        <option value="">Nenhuma</option>
-        <option value="marmita_p">Marmita P - R$14</option>
-        <option value="marmita_m">Marmita M - R$18</option>
-        <option value="marmita_g">Marmita G - R$22</option>
-        <option value="marmita_m_esp">Marmita M Especial - R$20</option>
-        <option value="marmita_g_esp">Marmita G Especial - R$25</option>
-        <option value="porcao_p">Porção P - R$10</option>
-        <option value="porcao_m">Porção M - R$20</option>
-      </select>
-      <button onclick="adicionarItemUnico('itemMarmita')">Adicionar Marmita</button>
+      <div style="margin-bottom:8px;">
+        <label for="endereco">Endereço</label><br>
+        <input id="endereco" type="text" placeholder="Digite o endereço" />
+      </div>
 
-      <!-- Saladas -->
-      <label>Selecione Salada:</label>
-      <select id="itemSalada">
-        <option value="">Nenhuma</option>
-        <option value="salada_p">Salada P - R$7</option>
-        <option value="salada_m">Salada M - R$10</option>
-      </select>
-      <button onclick="adicionarItemUnico('itemSalada')">Adicionar Salada</button>
+      <div style="margin-bottom:8px;">
+        <label for="taxa">Taxa (R$)</label><br>
+        <input id="taxa" type="number" min="0" value="0" />
+      </div>
 
-      <!-- Refrigerantes -->
-      <label>Selecione Refrigerante:</label>
-      <select id="itemBebida">
-        <option value="">Nenhum</option>
-        <option value="refri_lata">Refrigerante Lata - R$6</option>
-        <option value="refri_600">Refrigerante 600ml - R$8</option>
-        <option value="refri_1l">Refrigerante 1L - R$10</option>
-        <option value="refri_taubaina_2l">Taubainas 2L - R$10</option>
-        <option value="refri_outros_2l">Outros Refrigerantes 2L - R$12</option>
-        <option value="refri_coca_2l">Coca-Cola 2L - R$15</option>
-        <option value="refri_coca_25l">Coca-Cola 2,5L - R$18</option>
-      </select>
-      <button onclick="adicionarItemUnico('itemBebida')">Adicionar Bebida</button>
+      <!-- Marmita -->
+      <div class="row">
+        <label>Marmita</label>
+        <select id="itemMarmita">
+          <option value="">Nenhuma</option>
+          <option value="marmita_p">Marmita P - R$14</option>
+          <option value="marmita_m">Marmita M - R$18</option>
+          <option value="marmita_g">Marmita G - R$22</option>
+        </select>
+        <button onclick="adicionarItemUnico('itemMarmita')">Adicionar</button>
+      </div>
 
-      <label>Forma de pagamento:</label>
-      <select id="pagamento">
-        <option value="Pix">Pix</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Cartão">Cartão</option>
-        <option value="Fiado">Fiado</option>
-        <option value="Nenhum">Nenhum</option>
-      </select>
+      <!-- Porções -->
+      <div class="row">
+        <label>Porção</label>
+        <select id="selectPorcao">
+          <option value="">Nenhuma</option>
+          <option value="porcao_p">Porção P - R$10</option>
+          <option value="porcao_m">Porção M - R$20</option>
+        </select>
+        <button onclick="adicionarItemUnico('selectPorcao')">Adicionar</button>
+      </div>
+
+      <!-- Adicional Especial -->
+      <div class="row">
+        <label>Especial</label>
+        <select id="selectEspecial">
+          <option value="">Nenhuma</option>
+          <option value="marmita_m_esp">Especial M - R$30</option>
+          <option value="marmita_g_esp">Especial G - R$35</option>
+        </select>
+        <button onclick="adicionarItemUnico('selectEspecial')">Adicionar</button>
+      </div>
+
+      <!-- Adicionais -->
+      <div class="row">
+        <label>Adicional</label>
+        <select id="selectAdicional">
+          <option value="">Nenhum</option>
+          <option value="adicional10">Adicional - R$10</option>
+          <option value="adicional20">Adicional - R$20</option>
+        </select>
+        <button onclick="adicionarItemUnico('selectAdicional')">Adicionar</button>
+      </div>
+
+      <!-- Bebida -->
+      <div class="row">
+        <label>Bebida</label>
+        <select id="itemBebida">
+          <option value="">Nenhum</option>
+          <option value="refri_lata">Refrigerante Lata - R$6</option>
+          <option value="refri_600">Refrigerante 600ml - R$8</option>
+          <option value="refri_1l">Refrigerante 1L - R$10</option>
+          <option value="refri_coca_2l">Coca-Cola 2L - R$15</option>
+        </select>
+        <button onclick="adicionarItemUnico('itemBebida')">Adicionar</button>
+      </div>
+
+      <!-- Salada -->
+      <div class="row">
+        <label>Salada</label>
+        <select id="itemSalada">
+          <option value="">Nenhuma</option>
+          <option value="salada_p">Salada P - R$7</option>
+          <option value="salada_m">Salada M - R$10</option>
+        </select>
+        <button onclick="adicionarItemUnico('itemSalada')">Adicionar</button>
+      </div>
+
+      <!-- Pagamento -->
+      <div style="margin-top:8px;">
+        <label>Forma de pagamento</label><br>
+        <select id="pagamento" onchange="atualizarPagamentoAtual()">
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Cartão">Cartão</option>
+          <option value="Fiado">Fiado</option>
+        </select>
+      </div>
     </div>
 
-    <!-- Itens do Pedido Atual -->
-    <div class="card">
+    <!-- ITENS DO PEDIDO ATUAL -->
+    <div class="card" id="cardPedidoAtual">
       <h2>Itens do Pedido Atual</h2>
+      <div style="margin-bottom:8px;"><strong>Pagamento atual:</strong> <span id="pagamentoAtualDisplay">Pix</span></div>
       <ul id="listaItens"></ul>
-      <div class="finalizar-container">
-        <button onclick="finalizarPedido()">Finalizar Pedido</button>
+
+      <div class="finalizar-actions">
+        <button class="small" onclick="removerUltimoItem()">Remover Item</button>
+        <div class="finalizar-container">
+          <button onclick="finalizarPedido()">Finalizar Pedido</button>
+        </div>
       </div>
+    </div>
+
+    <!-- PEDIDOS PENDENTES -->
+    <div class="card" id="cardPendentes">
+      <h2>Pedidos Pendentes (<span id="contadorPendentes">0</span>)</h2>
+      <div id="pendentes" class="pendentes"></div>
     </div>
   </div>
 
-  <!-- ROTAS E PENDENTES -->
-  <div class="rotas-grid">
-    <!-- Rotas -->
-    <div class="card">
-      <h2>Gerenciar Rotas</h2>
+  <!-- ROTAS (card que ocupa a largura) -->
+  <div class="card rotas-card">
+    <h2>Gerenciar Rotas</h2>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="toggleRotasBtn" onclick="toggleRotas()">Ocultar Rotas</button>
       <button onclick="adicionarRota()">Adicionar Rota</button>
-      <div id="rotas"></div>
     </div>
 
-    <!-- Pedidos Pendentes -->
-    <div class="card">
-      <h2>Pedidos Pendentes (<span id="contadorPendentes">0</span>)</h2>
-      <div id="pendentes" class="pendentes"></div>
+    <div id="rotasContainer">
+      <div id="rotas" class="rotas-grid"></div>
     </div>
   </div>
 
@@ -96,7 +276,319 @@
   <div class="relatorio-card">
     <h2>Relatório</h2>
     <button onclick="gerarRelatorio()">Gerar Relatório</button>
-    <div class="report" id="relatorio"></div>
+    <div id="relatorio" class="report"></div>
   </div>
+
+<script>
+/* ============================
+   Dados (preços / nomes)
+   ============================ */
+const precos = {
+  marmita_p:14, marmita_m:18, marmita_g:22,
+  marmita_m_esp:30, marmita_g_esp:35,
+  porcao_p:10, porcao_m:20,
+  adicional10:10, adicional20:20,
+  refri_lata:6, refri_600:8, refri_1l:10, refri_coca_2l:15,
+  salada_p:7, salada_m:10
+};
+const nomes = {
+  marmita_p:"Marmita P - R$14", marmita_m:"Marmita M - R$18", marmita_g:"Marmita G - R$22",
+  marmita_m_esp:"Especial M - R$30", marmita_g_esp:"Especial G - R$35",
+  porcao_p:"Porção P - R$10", porcao_m:"Porção M - R$20",
+  adicional10:"Adicional - R$10", adicional20:"Adicional - R$20",
+  refri_lata:"Refri Lata - R$6", refri_600:"Refri 600ml - R$8", refri_1l:"Refri 1L - R$10", refri_coca_2l:"Coca-Cola 2L - R$15",
+  salada_p:"Salada P - R$7", salada_m:"Salada M - R$10"
+};
+
+/* estado da aplicação */
+let pedidoAtual = [];          // itens do pedido sendo montado (strings keys)
+let pedidosPendentes = [];     // array de {endereco,itens,pagamento,taxa}
+let rotas = [];                // array de {id,pedidos: [] }
+let rotaCounter = 0;           // contador único para ids de rota
+
+/* ---------------------------
+   Inicialização
+   --------------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  atualizarPagamentoAtual();
+  atualizarListaItensUI();
+  atualizarPendentes();
+  atualizarRotas();
+});
+
+/* ---------------------------
+   Funções de UI / Itens
+   --------------------------- */
+function atualizarPagamentoAtual(){
+  const pag = document.getElementById("pagamento").value;
+  document.getElementById("pagamentoAtualDisplay").textContent = pag;
+}
+
+function adicionarItemUnico(selectId){
+  const sel = document.getElementById(selectId);
+  if(!sel) return;
+  const val = sel.value;
+  if(!val) return;
+  pedidoAtual.push(val);
+  sel.value = ""; // limpa select
+  atualizarListaItensUI();
+}
+
+function atualizarListaItensUI(){
+  const ul = document.getElementById("listaItens");
+  ul.innerHTML = "";
+  pedidoAtual.forEach((it, idx) => {
+    const li=document.createElement("li");
+    li.textContent = nomes[it] || it;
+    ul.appendChild(li);
+  });
+}
+
+function removerUltimoItem(){
+  if(pedidoAtual.length===0) return alert("Nenhum item para remover!");
+  pedidoAtual.pop();
+  atualizarListaItensUI();
+}
+
+/* ---------------------------
+   Finalizar Pedido (vai para pendentes)
+   --------------------------- */
+function finalizarPedido(){
+  const endereco = document.getElementById("endereco").value.trim();
+  const taxaRaw = document.getElementById("taxa").value;
+  const pagamento = document.getElementById("pagamento").value;
+
+  if(!endereco){ alert("Informe o endereço"); return; }
+  if(pedidoAtual.length===0){ alert("Adicione ao menos um item ao pedido"); return; }
+
+  const taxa = isNaN(parseFloat(taxaRaw)) ? 0 : Number(taxaRaw);
+
+  pedidosPendentes.push({
+    endereco,
+    itens: [...pedidoAtual],
+    pagamento,
+    taxa
+  });
+
+  // limpar pedido atual e campos
+  pedidoAtual = [];
+  document.getElementById("endereco").value = "";
+  document.getElementById("taxa").value = 0;
+  atualizarListaItensUI();
+  atualizarPendentes();
+  atualizarRotas(); // as selects de rotas dependem dos pendentes
+}
+
+/* ---------------------------
+   Pendentes (render)
+   --------------------------- */
+function atualizarPendentes(){
+  const cont = document.getElementById("pendentes");
+  cont.innerHTML = "";
+
+  pedidosPendentes.forEach((p, i) => {
+    const subtotal = p.itens.reduce((acc,it)=>acc + (precos[it]||0),0);
+    const total = subtotal + (p.taxa || 0);
+    const itensTexto = p.itens.map(x=>nomes[x]||x).join(" + ");
+
+    const bloco = document.createElement("div");
+    bloco.className = "pedido-detalhe";
+    bloco.innerHTML = `<strong>Pedido ${i+1}</strong><br>
+      <strong>Endereço:</strong> ${p.endereco}<br>
+      <strong>Itens:</strong> ${itensTexto}<br>
+      <strong>Pagamento:</strong> ${p.pagamento}<br>
+      ${p.taxa && Number(p.taxa) > 0 ? `<strong>Taxa:</strong> R$ ${Number(p.taxa).toFixed(2)}<br>` : ""}
+      <strong>Total:</strong> R$ ${total.toFixed(2)}<br>
+      <div style="margin-top:8px;">
+        <button class="small" onclick="excluirPedidoPendente(${i})">Excluir</button>
+      </div>`;
+
+    cont.appendChild(bloco);
+  });
+
+  document.getElementById("contadorPendentes").textContent = pedidosPendentes.length;
+}
+
+/* excluir pendente */
+function excluirPedidoPendente(index){
+  if(!confirm("Remover pedido pendente?")) return;
+  pedidosPendentes.splice(index,1);
+  atualizarPendentes();
+  atualizarRotas();
+}
+
+/* ---------------------------
+   Rotas
+   --------------------------- */
+function adicionarRota(){
+  rotaCounter++;
+  // cria rota vazia (o usuário poderá adicionar pedidos da lista pendente para a rota)
+  rotas.push({ id: rotaCounter, pedidos: [] });
+  // manter render atualizado (exibimos em ordem decrescente)
+  atualizarRotas();
+}
+
+let rotasVisiveis = true;
+function toggleRotas(){
+  rotasVisiveis = !rotasVisiveis;
+  const cont = document.getElementById("rotasContainer");
+  const btn = document.getElementById("toggleRotasBtn");
+  if(!rotasVisiveis){ cont.style.display = "none"; btn.textContent = "Mostrar Rotas"; }
+  else { cont.style.display = "block"; btn.textContent = "Ocultar Rotas"; }
+}
+
+function atualizarRotas(){
+  const cont = document.getElementById("rotas");
+  cont.innerHTML = "";
+
+  // exibimos rotas com a mais recente primeiro (id maior em cima)
+  const rotasOrdenadas = rotas.slice().sort((a,b)=>b.id - a.id);
+
+  rotasOrdenadas.forEach((rota) => {
+    const div = document.createElement("div");
+    div.className = "rota";
+
+    // header com id e botões
+    let inner = `<h3 style="margin:0 0 8px 0;">Rota ${rota.id} (${rota.pedidos.length}) 
+      <button class="small" onclick="removerRota(${rota.id})" style="float:right;margin-left:8px;">Remover</button></h3>`;
+
+    // se houver pedidos pendentes: mostrar select para escolher e adicionar
+    if(pedidosPendentes.length > 0){
+      inner += `<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <select id="selectRota_${rota.id}">${pedidosPendentes.map((p,idx)=>`<option value="${idx}">Pedido ${idx+1} - ${p.endereco}</option>`).join("")}</select>
+        <button class="small" onclick="moverPedidoParaRota(${rota.id})">Adicionar Pedido</button>
+      </div>`;
+    }
+
+    // listar pedidos da rota
+    rota.pedidos.forEach((p, idx) => {
+      const subtotal = p.itens.reduce((acc,it)=>acc + (precos[it]||0),0);
+      const total = subtotal + (p.taxa || 0);
+      const itensTxt = p.itens.map(x=>nomes[x]||x).join(" + ");
+      inner += `<div class="pedido-detalhe" style="background:#fff;color:#000;">
+        <strong>Pedido ${idx+1}</strong><br>
+        <strong>Endereço:</strong> ${p.endereco}<br>
+        <strong>Itens:</strong> ${itensTxt}<br>
+        <strong>Pagamento:</strong> ${p.pagamento}<br>
+        ${p.taxa && Number(p.taxa) > 0 ? `<strong>Taxa:</strong> R$ ${Number(p.taxa).toFixed(2)}<br>` : ""}
+        <strong>Total:</strong> R$ ${total.toFixed(2)}<br>
+        <div style="margin-top:6px;">
+          <button class="small" onclick="removerPedidoDaRota(${rota.id}, ${idx})">Remover (voltar)</button>
+          <button class="small" onclick="excluirPedidoDaRota(${rota.id}, ${idx})">Excluir</button>
+        </div>
+      </div>`;
+    });
+
+    div.innerHTML = inner;
+    cont.appendChild(div);
+  });
+}
+
+/* mover pedido pendente indicado para a rota (select dentro da rota) */
+function moverPedidoParaRota(rotaId){
+  const sel = document.getElementById("selectRota_" + rotaId);
+  if(!sel) return alert("Nenhum pedido disponível para adicionar nesta rota.");
+  const pendIndex = parseInt(sel.value);
+  if(isNaN(pendIndex)) return;
+  const pedido = pedidosPendentes.splice(pendIndex,1)[0];
+  const rota = rotas.find(r=>r.id === rotaId);
+  if(rota) rota.pedidos.push(pedido);
+  atualizarPendentes();
+  atualizarRotas();
+}
+
+/* remover pedido da rota e devolver para pendentes */
+function removerPedidoDaRota(rotaId, pedidoIdx){
+  const rota = rotas.find(r=>r.id===rotaId);
+  if(!rota) return;
+  const pedido = rota.pedidos.splice(pedidoIdx,1)[0];
+  if(pedido) pedidosPendentes.push(pedido);
+  atualizarPendentes();
+  atualizarRotas();
+}
+
+/* excluir pedido (apagar) da rota */
+function excluirPedidoDaRota(rotaId, pedidoIdx){
+  const rota = rotas.find(r=>r.id===rotaId);
+  if(!rota) return;
+  if(!confirm("Excluir este pedido da rota?")) return;
+  rota.pedidos.splice(pedidoIdx,1);
+  atualizarRotas();
+}
+
+/* remover rota (devolve pedidos da rota para pendentes) */
+function removerRota(rotaId){
+  const rota = rotas.find(r=>r.id===rotaId);
+  if(!rota) return;
+  if(rota.pedidos.length > 0){
+    if(!confirm("Remover rota e devolver pedidos para pendentes?")) return;
+    pedidosPendentes.push(...rota.pedidos);
+  }
+  rotas = rotas.filter(r=>r.id !== rotaId);
+  atualizarPendentes();
+  atualizarRotas();
+}
+
+/* ---------------------------
+   Relatório (corrigido)
+   - separa pendentes e rotas
+   - soma taxas (pendentes + rotas)
+   - total de refeições: conta pedidos com subtotal > 20
+   --------------------------- */
+function gerarRelatorio(){
+  const out = document.getElementById("relatorio");
+  out.innerHTML = "";
+
+  let totalGeral = 0;
+  let somaTaxas = 0;
+  let totalRefeicoes = 0;
+
+  // Pedidos pendentes
+  out.innerHTML += `<h3>Pedidos Pendentes: ${pedidosPendentes.length}</h3>`;
+  pedidosPendentes.forEach((p, idx) => {
+    const subtotal = p.itens.reduce((acc,it)=>acc + (precos[it]||0),0);
+    const total = subtotal + (p.taxa||0);
+    totalGeral += total;
+    somaTaxas += p.taxa||0;
+    if(subtotal > 20) totalRefeicoes++;
+    const itensTxt = p.itens.map(x=>nomes[x]||x).join(" + ");
+    out.innerHTML += `<p><strong>Pedido ${idx+1}</strong> | Endereço: ${p.endereco} | Itens: ${itensTxt} | Pagamento: ${p.pagamento}${(p.taxa && p.taxa>0) ? " | Taxa: R$ " + p.taxa.toFixed(2) : ""} | Total: R$ ${total.toFixed(2)}</p>`;
+  });
+
+  // Rotas e pedidos nas rotas
+  if(rotas.length > 0){
+    // ordenar rotas por id asc para exibir Rota 1 no fim? — aqui exibimos por ordem criada (id asc),
+    // mas você pode ajustar se prefere outra visualização. Vamos exibir em ordem crescente (Rota 1, Rota 2, ...),
+    // porém na seção principal das rotas no UI a ordenação visual mostra mais recentes no topo.
+    out.innerHTML += `<h3>Rotas</h3>`;
+    rotas.slice().forEach((rota) => {
+      if(rota.pedidos.length === 0){
+        out.innerHTML += `<p><strong>Rota ${rota.id}</strong> (vazia)</p>`;
+        return;
+      }
+      out.innerHTML += `<p><strong>Rota ${rota.id}</strong> (${rota.pedidos.length} pedidos)</p>`;
+      rota.pedidos.forEach((p, idx) => {
+        const subtotal = p.itens.reduce((acc,it)=>acc + (precos[it]||0),0);
+        const total = subtotal + (p.taxa||0);
+        totalGeral += total;
+        somaTaxas += p.taxa||0;
+        if(subtotal > 20) totalRefeicoes++;
+        const itensTxt = p.itens.map(x=>nomes[x]||x).join(" + ");
+        out.innerHTML += `<p style="margin-left:18px;"><strong>Pedido ${idx+1}</strong> | Endereço: ${p.endereco} | Itens: ${itensTxt} | Pagamento: ${p.pagamento}${(p.taxa && p.taxa>0) ? " | Taxa: R$ " + p.taxa.toFixed(2) : ""} | Total: R$ ${total.toFixed(2)}</p>`;
+      });
+    });
+  }
+
+  // Totais
+  out.innerHTML += `<hr>`;
+  out.innerHTML += `<p><strong>Total Geral:</strong> R$ ${totalGeral.toFixed(2)}</p>`;
+  out.innerHTML += `<p><strong>Soma das Taxas:</strong> R$ ${somaTaxas.toFixed(2)}</p>`;
+  out.innerHTML += `<p><strong>Total de Refeições (subtotal &gt; R$20):</strong> ${totalRefeicoes}</p>`;
+}
+
+/* ============================
+   Fim do script
+   ============================ */
+</script>
 </body>
 </html>
