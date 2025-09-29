@@ -164,7 +164,9 @@
           <option value="">Nenhuma</option>
           <option value="marmita_p">Marmita P - R$14</option>
           <option value="marmita_m">Marmita M - R$18</option>
+          <option value="marmitaEspecial_m">Marmita Especial M - R$20</option>
           <option value="marmita_g">Marmita G - R$22</option>
+          <option value="marmitaEspecial_g">Marmita Especial G - R$25</option>
         </select>
         <button onclick="adicionarItemUnico('itemMarmita')">Adicionar</button>
       </div>
@@ -182,11 +184,11 @@
 
       <!-- Adicional Especial -->
       <div class="row">
-        <label>Especial</label>
+        <label> Porção Especial</label>
         <select id="selectEspecial">
           <option value="">Nenhuma</option>
-          <option value="marmita_m_esp">Especial M - R$30</option>
-          <option value="marmita_g_esp">Especial G - R$35</option>
+          <option value="porcao_m_esp">Porção Especial M - R$30</option>
+          <option value="porcao_g_esp">Porção Especial G - R$35</option>
         </select>
         <button onclick="adicionarItemUnico('selectEspecial')">Adicionar</button>
       </div>
@@ -230,10 +232,10 @@
       <div style="margin-top:8px;">
         <label>Forma de pagamento</label><br>
         <select id="pagamento" onchange="atualizarPagamentoAtual()">
-          <option value="Pix">Pix</option>
           <option value="Dinheiro">Dinheiro</option>
           <option value="Cartão">Cartão</option>
           <option value="Fiado">Fiado</option>
+          <option value="Pix">Pix</option>
         </select>
       </div>
     </div>
@@ -285,7 +287,8 @@
    ============================ */
 const precos = {
   marmita_p:14, marmita_m:18, marmita_g:22,
-  marmita_m_esp:30, marmita_g_esp:35,
+  marmitaEspecial_m:20, marmitaEspecial_g:25,
+  porcao_m_esp:30, porcao_g_esp:35,
   porcao_p:10, porcao_m:20,
   adicional10:10, adicional20:20,
   refri_lata:6, refri_600:8, refri_1l:10, refri_coca_2l:15,
@@ -293,7 +296,8 @@ const precos = {
 };
 const nomes = {
   marmita_p:"Marmita P - R$14", marmita_m:"Marmita M - R$18", marmita_g:"Marmita G - R$22",
-  marmita_m_esp:"Especial M - R$30", marmita_g_esp:"Especial G - R$35",
+  marmitaEspecial_m:"Marmita Especial M - R$20", marmitaEspecial_g:"Marmita Especial G - R$25",
+  porcao_m_esp:"Porção Especial M - R$30", porcao_g_esp:"Porção Especial G - R$35",
   porcao_p:"Porção P - R$10", porcao_m:"Porção M - R$20",
   adicional10:"Adicional - R$10", adicional20:"Adicional - R$20",
   refri_lata:"Refri Lata - R$6", refri_600:"Refri 600ml - R$8", refri_1l:"Refri 1L - R$10", refri_coca_2l:"Coca-Cola 2L - R$15",
@@ -541,7 +545,16 @@ function gerarRelatorio(){
 
   let totalGeral = 0;
   let somaTaxas = 0;
-  let totalRefeicoes = 0;
+  let totalDinheiro = 0;
+  let totalCartao = 0;
+  let totalPix = 0;
+  let totalFiado = 0;
+  let quantidadeRefeicoes = 0;
+
+  function isRefeicao(it, subtotal) {
+    // Marmita ou qualquer item acima de R$20
+    return it.startsWith("marmita") || subtotal > 20;
+  }
 
   // Pedidos pendentes
   out.innerHTML += `<h3>Pedidos Pendentes: ${pedidosPendentes.length}</h3>`;
@@ -550,16 +563,19 @@ function gerarRelatorio(){
     const total = subtotal + (p.taxa||0);
     totalGeral += total;
     somaTaxas += p.taxa||0;
-    if(subtotal > 20) totalRefeicoes++;
+    if (p.pagamento === "Dinheiro") totalDinheiro += total;
+    if (p.pagamento === "Cartão") totalCartao += total;
+    if (p.pagamento === "Pix") totalPix += total;
+    if (p.pagamento === "Fiado") totalFiado += total;
+    if (p.itens.some(it => isRefeicao(it, precos[it]||0)) || subtotal > 20) {
+      quantidadeRefeicoes++;
+    }
     const itensTxt = p.itens.map(x=>nomes[x]||x).join(" + ");
     out.innerHTML += `<p><strong>Pedido ${idx+1}</strong> | Endereço: ${p.endereco} | Itens: ${itensTxt} | Pagamento: ${p.pagamento}${(p.taxa && p.taxa>0) ? " | Taxa: R$ " + p.taxa.toFixed(2) : ""} | Total: R$ ${total.toFixed(2)}</p>`;
   });
 
   // Rotas e pedidos nas rotas
   if(rotas.length > 0){
-    // ordenar rotas por id asc para exibir Rota 1 no fim? — aqui exibimos por ordem criada (id asc),
-    // mas você pode ajustar se prefere outra visualização. Vamos exibir em ordem crescente (Rota 1, Rota 2, ...),
-    // porém na seção principal das rotas no UI a ordenação visual mostra mais recentes no topo.
     out.innerHTML += `<h3>Rotas</h3>`;
     rotas.slice().forEach((rota) => {
       if(rota.pedidos.length === 0){
@@ -572,18 +588,37 @@ function gerarRelatorio(){
         const total = subtotal + (p.taxa||0);
         totalGeral += total;
         somaTaxas += p.taxa||0;
-        if(subtotal > 20) totalRefeicoes++;
+        if (p.pagamento === "Dinheiro") totalDinheiro += total;
+        if (p.pagamento === "Cartão") totalCartao += total;
+        if (p.pagamento === "Pix") totalPix += total;
+        if (p.pagamento === "Fiado") totalFiado += total;
+        if (p.itens.some(it => isRefeicao(it, precos[it]||0)) || subtotal > 20) {
+          quantidadeRefeicoes++;
+        }
         const itensTxt = p.itens.map(x=>nomes[x]||x).join(" + ");
-        out.innerHTML += `<p style="margin-left:18px;"><strong>Pedido ${idx+1}</strong> | Endereço: ${p.endereco} | Itens: ${itensTxt} | Pagamento: ${p.pagamento}${(p.taxa && p.taxa>0) ? " | Taxa: R$ " + p.taxa.toFixed(2) : ""} | Total: R$ ${total.toFixed(2)}</p>`;
+        out.innerHTML += `<p style=\"margin-left:18px;\"><strong>Pedido ${idx+1}</strong> | Endereço: ${p.endereco} | Itens: ${itensTxt} | Pagamento: ${p.pagamento}${(p.taxa && p.taxa>0) ? " | Taxa: R$ " + p.taxa.toFixed(2) : ""} | Total: R$ ${total.toFixed(2)}</p>`;
       });
     });
+  }
+
+  // Cálculo do valor "moto"
+  let valorMoto = 0;
+  if (quantidadeRefeicoes < 35) {
+    valorMoto = 70 + somaTaxas;
+  } else {
+    valorMoto = (quantidadeRefeicoes * 2) + somaTaxas;
   }
 
   // Totais
   out.innerHTML += `<hr>`;
   out.innerHTML += `<p><strong>Total Geral:</strong> R$ ${totalGeral.toFixed(2)}</p>`;
+  out.innerHTML += `<p><strong>Total Dinheiro:</strong> R$ ${totalDinheiro.toFixed(2)}</p>`;
+  out.innerHTML += `<p><strong>Total Cartão:</strong> R$ ${totalCartao.toFixed(2)}</p>`;
+  out.innerHTML += `<p><strong>Total Pix:</strong> R$ ${totalPix.toFixed(2)}</p>`;
+  out.innerHTML += `<p><strong>Total Fiado:</strong> R$ ${totalFiado.toFixed(2)}</p>`;
   out.innerHTML += `<p><strong>Soma das Taxas:</strong> R$ ${somaTaxas.toFixed(2)}</p>`;
-  out.innerHTML += `<p><strong>Total de Refeições (subtotal &gt; R$20):</strong> ${totalRefeicoes}</p>`;
+  out.innerHTML += `<p><strong>Total de Refeições :</strong> ${quantidadeRefeicoes}</p>`;
+  out.innerHTML += `<p><strong>Valor Moto:</strong> R$ ${valorMoto.toFixed(2)}</p>`;
 }
 
 /* ============================
